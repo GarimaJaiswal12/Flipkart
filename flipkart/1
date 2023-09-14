@@ -1,0 +1,63 @@
+import java.util.*;
+
+class Process {
+    String name;
+    int arrivalTime;
+    int burstTime;
+    int remainingTime;
+
+    public Process(String name, int arrivalTime, int burstTime) {
+        this.name = name;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+    }
+}
+
+ class SJTFPreemptive {
+    public static void main(String[] args) {
+        // Create a list of processes
+        List<Process> processes = new ArrayList<>();
+        processes.add(new Process("P1", 0, 6));
+        processes.add(new Process("P2", 2, 8));
+        processes.add(new Process("P3", 4, 7));
+        processes.add(new Process("P4", 6, 3));
+
+        // Sort the processes based on arrival time (earliest first)
+        Collections.sort(processes, Comparator.comparingInt(p -> p.arrivalTime));
+
+        int currentTime = 0;
+        List<Process> readyQueue = new ArrayList<>();
+
+        while (!processes.isEmpty() || !readyQueue.isEmpty()) {
+            // Add processes that have arrived to the ready queue
+            while (!processes.isEmpty() && processes.get(0).arrivalTime <= currentTime) {
+                readyQueue.add(processes.remove(0));
+            }
+
+            // Sort the ready queue based on remaining time (shortest first)
+            Collections.sort(readyQueue, Comparator.comparingInt(p -> p.remainingTime));
+
+            // Execute the process with the shortest remaining time
+            if (!readyQueue.isEmpty()) {
+                Process currentProcess = readyQueue.get(0);
+                readyQueue.remove(0);
+
+                System.out.println("Process " + currentProcess.name + " is executing from time " + currentTime +
+                        " to " + (currentTime + 1));
+
+                currentProcess.remainingTime--;
+
+                // If the process is not completed, put it back in the ready queue
+                if (currentProcess.remainingTime > 0) {
+                    readyQueue.add(currentProcess);
+                }
+
+                currentTime++;
+            } else {
+                // If no processes are in the ready queue, just increment time
+                currentTime++;
+            }
+        }
+    }
+}
